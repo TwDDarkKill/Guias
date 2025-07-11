@@ -68,11 +68,6 @@
             "link": "https://docs.google.com/document/d/1LaAjcmoA4RBPCsY4F09mTkNTk84NHJTNckQ5d5mHiTM/edit?tab=t.0#heading=h.vb8p0lepu9vn"
         },
         {
-            "id": "8673938a-86bb-43f4-ab7c-77ef94b86c62",
-            "title": "Teste",
-            "link": "https://discloud.com/dashboard/app/1751837793181"
-        },
-        {
             "id": "dee89384-6731-40fb-83c2-69aa371f3b0a",
             "title": "Todos os Diários de Aventura",
             "link": "https://www.youtube.com/playlist?list=PLb7BEM2hvp9QcA7eV1qzxWfjJ5GDa2lry"
@@ -81,6 +76,16 @@
             "id": "adbfa159-067a-4438-9a92-0ac4c1a74c03",
             "title": "Upgrades para acessórios",
             "link": "https://imgur.com/b625YCG"
+        },
+        {
+            "id": "5c60bbe7-18b6-4d14-aae6-5d4b63ea5b05",
+            "title": "Tuvala DEC",
+            "link": "https://youtu.be/g92ZdQgQgeo?si=mK-yX8FgSyCFtngL"
+        },
+        {
+            "id": "dfeb3c01-23fe-423d-9323-d41e59c43b72",
+            "title": "Abismo Imortal = 100 Cron por Dia",
+            "link": "https://youtube.com/playlist?list=PLo_BecZo49tBODc0nrUWm5trQAOFqM9a9&si=sErpaPPaqt9xcOul"
         }
     ],
     "Itens Tesouro": [
@@ -234,7 +239,7 @@
     "Cultivo": [
         {
             "id": "b2ae6f42-6099-4d1b-831e-56c57942f11f",
-            "title": "Cercas gratuitas",
+            "title": "Cerca gratuita",
             "link": "https://www.youtube.com/watch?v=wJv8K9fLJSw"
         },
         {

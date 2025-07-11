@@ -124,7 +124,9 @@ async def sync(interaction: Interaction):
         logger.error(f"Erro ao sincronizar comandos manualmente: `{e}`")
 
 async def setup_bot():
-    await bot.tree.sync()
+    GUILD_ID = 471470882775367691
+    guild = discord.Object(id=GUILD_ID)
+    await bot.tree.sync(guild=guild)
     await bot.change_presence(activity=discord.Game(name="Black Desert Online"))
 
 @bot.event
