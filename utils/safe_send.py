@@ -1,5 +1,3 @@
-import re
-import discord
 import asyncio
 
 # Lock global para serializar envios
