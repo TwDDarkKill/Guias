@@ -5,11 +5,10 @@ from discord.ext import commands
 from discord import Intents, Interaction
 from dotenv import load_dotenv
 from managers.logger import *
-from discord import app_commands
 
 load_dotenv()
 
-TOKEN = os.getenv('DISCORD_TOKEN')
+TOKEN = os.getenv('TOKEN')
 APPLICATION_ID = os.getenv('APPLICATION_ID')
 BOT_OWNER_ID = int(os.getenv("BOT_OWNER_ID"))
 
@@ -139,4 +138,7 @@ async def on_ready():
     except Exception as e:
         logger.error(f"Ocorreu um erro em 'on_ready': `{e}`")
 
-bot.run(TOKEN)
+if not TOKEN:
+    raise ValueError("DISCORD_TOKEN environment variable is not set. Please check your .env file.")
+
+bot.run(TOKEN)  
