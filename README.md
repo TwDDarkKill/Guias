@@ -1,1 +1,1 @@
-# Guias
+O bot para Discord automatiza tarefas, gerencia mensagens, modera canais e oferece comandos personalizados para melhorar a experiência dos usuários no servidor.

@@ -1,10 +1,12 @@
 import discord
 from discord.ext import commands
 from discord.ui import Modal, TextInput, View, Select
+from utils.safe_send import safe_send
 import uuid
 import json
 import os
 import re
+import asyncio
 
 data_folder = './data'
 os.makedirs(data_folder, exist_ok=True)
@@ -76,22 +78,35 @@ class CategoryModal(Modal):
     def __init__(self):
         super().__init__(title='📁 Nova Categoria', timeout=300)
         self.category_input = TextInput(label='📌 Título da Categoria')
+        self.guide_title_input = TextInput(label='📌 Título do Guia Inicial')
+        self.guide_link_input = TextInput(label='🔗 Link do Guia Inicial')
         self.add_item(self.category_input)
+        self.add_item(self.guide_title_input)
+        self.add_item(self.guide_link_input)
 
     async def on_submit(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
         categoria = self.category_input.value.strip()
+        guide_title = self.guide_title_input.value.strip()
+        guide_link = self.guide_link_input.value.strip()
         if not categoria:
-            await interaction.edit_original_response(content=f'🚫 **{interaction.user.mention} Nome inválido.**', view=None)
+            await interaction.edit_original_response(content=f'🚫 **{interaction.user.mention} Nome de categoria inválido.**', view=None)
+            return
+        if not guide_title or not guide_link or not re.match(r'^https?://\S+\.\S+', guide_link):
+            await interaction.edit_original_response(content=f'🚫 **{interaction.user.mention} Preencha corretamente os campos do guia inicial.**', view=None)
             return
         data = get_guides_data()
         if categoria in data:
             await interaction.edit_original_response(content=f'**🚫 {interaction.user.mention} Categoria já existe.**', view=None)
             return
-        data[categoria] = []
+        data[categoria] = [{
+            "id": str(uuid.uuid4()),
+            "title": guide_title,
+            "link": guide_link
+        }]
         save_guides_data(data)
         await update_category_message(interaction.client, categoria)
-        await interaction.edit_original_response(content=f'**✅ {interaction.user.mention} Categoria "{categoria}" criada com sucesso!**', view=None)
+        await interaction.edit_original_response(content=f'**✅ {interaction.user.mention} Categoria "{categoria}" criada com o guia inicial!**', view=None)
 
 # --------------------- Atualizar Mensagem --------------------- #
 
@@ -109,10 +124,10 @@ async def update_category_message(bot, categoria):
                 msg = await canal.fetch_message(msg_id)
                 await msg.edit(content=conteudo)
             except Exception:
-                msg = await canal.send(conteudo)
+                msg = await safe_send(canal, conteudo)
                 message_ids[categoria] = msg.id
         else:
-            msg = await canal.send(conteudo)
+            msg = await safe_send(canal, conteudo)
             message_ids[categoria] = msg.id
         save_message_ids(message_ids)
 
@@ -244,32 +259,130 @@ class MainMenu(View):
         self.add_item(MainSelect(self))
 
 class MainSelect(Select):
-    def __init__(self, parent_view):
+    def __init__(self, parent_view: View):
         options = [
-            discord.SelectOption(label="📄 Listar Guias", value="listar", description="Veja todos os guias existentes"),
             discord.SelectOption(label="➕ Adicionar Guia", value="adicionar", description="Adicione um novo guia"),
             discord.SelectOption(label="✏️ Editar Guia", value="editar", description="Edite um guia existente"),
             discord.SelectOption(label="🗑️ Remover Guia", value="remover", description="Remova um guia existente"),
             discord.SelectOption(label="📁 Nova Categoria", value="nova_categoria", description="Crie uma nova categoria de guias"),
+            discord.SelectOption(label="🗑️ Remover Categoria", value="remover_categoria", description="Remova uma categoria de guias"),
+            discord.SelectOption(label="🔄 Reenviar Guias", value="reenviar_guias", description="Apague e reenvie todos os guias"),
         ]
-        self.parent_view = parent_view
         super().__init__(placeholder="📝 O que deseja fazer?", options=options)
+        self.parent_view = parent_view
 
     async def callback(self, interaction: discord.Interaction):
-        value = self.values[0]
+        action = self.values[0]
         data = get_guides_data()
         categorias = list(data.keys())
 
-        if value == "nova_categoria":
-            await interaction.response.send_modal(CategoryModal())
-        else:
+        if action == "nova_categoria":
+            return await interaction.response.send_modal(CategoryModal())
+
+        if action == "remover_categoria":
+            async def remove_cat_cb(i: discord.Interaction, cat: str):
+                data = get_guides_data()
+                msg_ids = get_message_ids()
+                if cat in data:
+                    del data[cat]
+                    save_guides_data(data)
+
+                    msg_id = msg_ids.pop(cat, None)
+                    if msg_id:
+                        canal = i.client.get_channel(CANAL_GUIAS_ID)
+                        if canal:
+                            try:
+                                msg = await canal.fetch_message(msg_id)
+                                await msg.delete()
+                            except Exception:
+                                pass
+                    save_message_ids(msg_ids)
+                    return await i.response.edit_message(
+                        content=f"✅ {i.user.mention} Categoria `{cat}` removida.",
+                        view=None
+                    )
+                else:
+                    return await i.response.edit_message(
+                        content=f"🚫 {i.user.mention} Categoria `{cat}` não encontrada.",
+                        view=None
+                    )
+
             view = PaginatedSelectMenu(
                 get_category_options(categorias),
-                "Selecione a categoria",
-                lambda i, cat: category_callback(i, cat, value, self.parent_view),
+                "Selecione a categoria para remover",
+                remove_cat_cb,
                 previous_view=self.parent_view
             )
-            await interaction.response.edit_message(content=f"**📁 {interaction.user.mention} Selecione a categoria:**", view=view)
+            return await interaction.response.edit_message(
+                content=f"📁 {interaction.user.mention} Qual categoria deseja remover?",
+                view=view
+            )
+
+        if action == "reenviar_guias":
+            canal = interaction.client.get_channel(CANAL_GUIAS_ID)
+            if canal is None:
+                return await interaction.response.edit_message(
+                    content=f"🚫 {interaction.user.mention} Canal de guias não encontrado.",
+                    view=None  # Remove imediatamente o menu
+                )
+
+            # 1) Edita a mensagem original para mostrar o andamento e remove o menu
+            await interaction.response.edit_message(
+                content=f"🔄 {interaction.user.mention} Reenviando todos os guias... Aguarde.",
+                view=None  # Remove o menu imediatamente
+            )
+
+            # 2) Apaga todas as mensagens usando purge
+            await canal.purge(limit=None)
+
+            # 3) Reenvia categorias e seus guias, um por segundo
+            new_msg_ids = {}
+            for categoria, guias in data.items():
+                conteudo = f"> ㅤㅤ\n>  **{categoria}**\n> ㅤㅤ\n"
+                for guia in guias:
+                    conteudo += f"- [{guia['title']}]({guia['link']})\n"
+                sent = await safe_send(canal, conteudo)
+                new_msg_ids[categoria] = sent.id
+                await asyncio.sleep(1)  # Aguarda 1 segundo entre envios
+
+            # 4) Salva novos IDs
+            save_message_ids(new_msg_ids)
+
+            # 5) Edita novamente a mensagem original para informar conclusão
+            try:
+                await interaction.edit_original_response(
+                    content=f"**✅ {interaction.user.mention} Todos os guias foram reenviados!**"
+                    # view permanece None para não reexibir o menu
+                )
+            except Exception as e:
+                print(f"Falha ao editar mensagem final: {e}")
+
+            return
+
+        # Adicionar / Editar / Remover guia em categoria existente
+        view = PaginatedSelectMenu(
+            get_category_options(categorias),
+            "Selecione a categoria",
+            lambda i, cat: category_callback(i, cat, action, self.parent_view),
+            previous_view=self.parent_view
+        )
+        if interaction.response.is_done():
+            await interaction.followup.send(
+                content=f"📁 {interaction.user.mention} Em qual categoria?",
+                view=view,
+                ephemeral=True
+            )
+        else:
+            await interaction.response.edit_message(
+                content=f"📁 {interaction.user.mention} Em qual categoria?",
+                view=view
+            )
+            # Se o usuário escolheu "Reenviar Guias", edite a mensagem original para informar andamento
+            if action == "reenviar_guias":
+                await interaction.edit_original_response(
+                    content=f"**🔄 {interaction.user.mention} Reenviando todos os guias... Aguarde.**",
+                    view=None
+                )
 
 # --------------------- Cog --------------------- #
 
