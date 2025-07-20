@@ -2,7 +2,7 @@ import logging
 import os
 
 LOG_DIRECTORY = 'logs'
-LOG_FILE = 'rebellion.log'
+LOG_FILE = 'bot.log'
 
 
 class IgnoreDNSResolutionErrors(logging.Filter):
