@@ -117,13 +117,16 @@ async def update_category_message(bot, categoria):
     conteudo = f"> ㅤㅤ\n>  **{categoria}**\n> ㅤㅤ\n"
     for guia in data.get(categoria, []):
         conteudo += f"- [{guia['title']}]({guia['link']})\n"
+
     msg_id = message_ids.get(categoria)
     if canal:
         if msg_id:
             try:
                 msg = await canal.fetch_message(msg_id)
-                await msg.edit(content=conteudo)
+                await asyncio.sleep(0,5)  # Aguarda meio segundo para evitar rate limit
+                await msg.edit(content=conteudo, suppress=True)  # suprime embeds ao editar
             except Exception:
+                # Se falhar ao editar (mensagem deletada ou erro), envia novamente usando safe_send
                 msg = await safe_send(canal, conteudo)
                 message_ids[categoria] = msg.id
         else:
@@ -298,12 +301,12 @@ class MainSelect(Select):
                                 pass
                     save_message_ids(msg_ids)
                     return await i.response.edit_message(
-                        content=f"✅ {i.user.mention} Categoria `{cat}` removida.",
+                        content=f"**✅ {i.user.mention} Categoria `{cat}` removida.**",
                         view=None
                     )
                 else:
                     return await i.response.edit_message(
-                        content=f"🚫 {i.user.mention} Categoria `{cat}` não encontrada.",
+                        content=f"**🚫 {i.user.mention} Categoria `{cat}` não encontrada.**",
                         view=None
                     )
 
@@ -314,7 +317,7 @@ class MainSelect(Select):
                 previous_view=self.parent_view
             )
             return await interaction.response.edit_message(
-                content=f"📁 {interaction.user.mention} Qual categoria deseja remover?",
+                content=f"**📁 {interaction.user.mention} Qual categoria deseja remover?**",
                 view=view
             )
 
@@ -322,13 +325,13 @@ class MainSelect(Select):
             canal = interaction.client.get_channel(CANAL_GUIAS_ID)
             if canal is None:
                 return await interaction.response.edit_message(
-                    content=f"🚫 {interaction.user.mention} Canal de guias não encontrado.",
+                    content=f"**🚫 {interaction.user.mention} Canal de guias não encontrado.**",
                     view=None  # Remove imediatamente o menu
                 )
 
             # 1) Edita a mensagem original para mostrar o andamento e remove o menu
             await interaction.response.edit_message(
-                content=f"🔄 {interaction.user.mention} Reenviando todos os guias... Aguarde.",
+                content=f"**🔄 {interaction.user.mention} Reenviando todos os guias... Aguarde.**",
                 view=None  # Remove o menu imediatamente
             )
 
@@ -368,13 +371,13 @@ class MainSelect(Select):
         )
         if interaction.response.is_done():
             await interaction.followup.send(
-                content=f"📁 {interaction.user.mention} Em qual categoria?",
+                content=f"**📁 {interaction.user.mention} Em qual categoria?**",
                 view=view,
                 ephemeral=True
             )
         else:
             await interaction.response.edit_message(
-                content=f"📁 {interaction.user.mention} Em qual categoria?",
+                content=f"**📁 {interaction.user.mention} Em qual categoria?**",
                 view=view
             )
             # Se o usuário escolheu "Reenviar Guias", edite a mensagem original para informar andamento
@@ -390,7 +393,7 @@ class GuideChannel(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @discord.app_commands.command(name="guia", description="📚 Gerencie guias e categorias em um único menu.")
+    @discord.app_commands.command(name="guia", description="Gerencie guias e categorias.")
     async def guia(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
         await interaction.edit_original_response(
