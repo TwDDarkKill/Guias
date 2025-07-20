@@ -1,7 +1,8 @@
 ````markdown
 # 📚 Bot de Gestão de Guias – Discord
 
-Um bot avançado em Python para gerenciar guias, tutoriais e categorias em canais do Discord. Organize seus conteúdos de estudo, suporte ou materiais de equipe de forma interativa, moderna e totalmente personalizável.
+Um bot avançado em Python para gerenciar guias, tutoriais e categorias em canais do Discord.
+Organize seus conteúdos de estudo, suporte ou materiais de equipe de forma interativa, moderna e totalmente personalizável.
 
 ---
 
