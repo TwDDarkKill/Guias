@@ -26,7 +26,7 @@ Um bot avançado em Python para gerenciar guias, tutoriais e categorias em canai
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/bot-guias-discord.git
+git clone https://github.com/TwDDarkKill/bot-guias-discord.git
 cd bot-guias-discord
 ````
 
@@ -123,7 +123,7 @@ Abre o **menu principal** de gerenciamento de guias, permitindo:
 
 ## 🧑‍💻 **Autor**
 
-Desenvolvido por [Seu Nome ou Nick aqui](https://github.com/seu-usuario) com foco em bots educacionais e organizacionais para comunidades Discord.
+Desenvolvido por [TwDDarkSiders](https://github.com/TwDDarkKill) com foco em bots educacionais e organizacionais para comunidades Discord.
 
 ---
 
