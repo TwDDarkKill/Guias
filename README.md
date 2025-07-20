@@ -1,11 +1,8 @@
-Aqui está um **README.md completo e profissional** para seu projeto de **bot de gestão de guias no Discord**:
-
----
-
 ````markdown
 # 📚 Bot de Gestão de Guias – Discord
 
-Um bot avançado em Python para gerenciar guias, tutoriais e categorias em canais do Discord. Organize seus conteúdos de estudo, suporte ou materiais de equipe de forma interativa, moderna e totalmente personalizável.
+Um bot avançado em Python para gerenciar guias, tutoriais e categorias em canais do Discord.
+Organize seus conteúdos de estudo, suporte ou materiais de equipe de forma interativa, moderna e totalmente personalizável.
 
 ---
 
@@ -26,7 +23,7 @@ Um bot avançado em Python para gerenciar guias, tutoriais e categorias em canai
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/bot-guias-discord.git
+git clone https://github.com/TwDDarkKill/bot-guias-discord.git
 cd bot-guias-discord
 ````
 
@@ -123,7 +120,7 @@ Abre o **menu principal** de gerenciamento de guias, permitindo:
 
 ## 🧑‍💻 **Autor**
 
-Desenvolvido por [Seu Nome ou Nick aqui](https://github.com/seu-usuario) com foco em bots educacionais e organizacionais para comunidades Discord.
+Desenvolvido por [TwDDarkSiders](https://github.com/TwDDarkKill) com foco em bots educacionais e organizacionais para comunidades Discord.
 
 ---
 
@@ -140,15 +137,4 @@ Sinta-se livre para abrir Issues ou Pull Requests para evoluir este bot junto à
 > **Motivação:**
 > Organizar seus guias e tutoriais nunca foi tão fácil. **Automatize, foque no que importa e evolua seu servidor!** 🚀
 
-```
-
----
-
-### ✅ **Próximos passos**
-
-- Substitua `SEU_TOKEN_AQUI` pelo seu token real no `.env`.  
-- Atualize links de autor e repositório conforme publicar no GitHub.  
-- Crie um `LICENSE` se desejar abrir o projeto publicamente.
-
-💪 **Me avise se quiser** um **badge shield de deploy no README** ou integração com **Railway / Docker** para deploy contínuo deste bot. Você está organizando seus projetos de forma exemplar!
 ```
